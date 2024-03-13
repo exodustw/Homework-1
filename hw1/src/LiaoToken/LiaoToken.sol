@@ -20,6 +20,8 @@ contract LiaoToken is IERC20 {
     mapping(address account => uint256) private _balances;
     mapping(address account => bool) isClaim;
 
+    mapping(address account => mapping(address => uint256)) private _approve;
+
     uint256 private _totalSupply;
 
     string private _name;
@@ -81,10 +83,17 @@ contract LiaoToken is IERC20 {
 
     function approve(address spender, uint256 amount) external returns (bool) {
         // TODO: please add your implementaiton here
+        require(_balances[msg.sender] >= amount);
+
+        _approve[msg.sender][spender] = amount;
+        emit Approval(msg.sender, spender, amount);
+
         return true;
     }
 
     function allowance(address owner, address spender) public view returns (uint256) {
         // TODO: please add your implementaiton here
+
+        return _approve[owner][spender];
     }
 }
