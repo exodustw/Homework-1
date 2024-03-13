@@ -76,18 +76,34 @@ contract NFinTech is IERC721 {
 
     function setApprovalForAll(address operator, bool approved) external {
         // TODO: please add your implementaiton here
+        if (operator == address(0)) revert ZeroAddress();
+        
+        _operatorApproval[msg.sender][operator] = approved;
+        emit ApprovalForAll(msg.sender, operator, approved);
     }
 
     function isApprovedForAll(address owner, address operator) public view returns (bool) {
         // TODO: please add your implementaiton here
+        return _operatorApproval[owner][operator];
     }
 
     function approve(address to, uint256 tokenId) external {
         // TODO: please add your implementaiton here
+        require(_owner[tokenId] == msg.sender || _operatorApproval[_owner[tokenId]][msg.sender] == true);
+
+        if(_owner[tokenId] == msg.sender){
+            _tokenApproval[tokenId] = to;
+            emit Approval(msg.sender, to, tokenId);
+        }else if(_operatorApproval[_owner[tokenId]][msg.sender] == true){
+            _tokenApproval[tokenId] = to;
+            emit Approval(_owner[tokenId], to, tokenId);
+        }
+        
     }
 
     function getApproved(uint256 tokenId) public view returns (address operator) {
         // TODO: please add your implementaiton here
+        return _tokenApproval[tokenId];
     }
 
     function transferFrom(address from, address to, uint256 tokenId) public {
