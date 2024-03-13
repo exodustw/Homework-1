@@ -77,6 +77,7 @@ contract NFinTech is IERC721 {
     function setApprovalForAll(address operator, bool approved) external {
         // TODO: please add your implementaiton here
         if (operator == address(0)) revert ZeroAddress();
+        require(msg.sender != operator);
         
         _operatorApproval[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -89,7 +90,7 @@ contract NFinTech is IERC721 {
 
     function approve(address to, uint256 tokenId) external {
         // TODO: please add your implementaiton here
-        require(_owner[tokenId] == msg.sender || _operatorApproval[_owner[tokenId]][msg.sender] == true);
+        require(_owner[tokenId] == msg.sender || _operatorApproval[_owner[tokenId]][msg.sender] == true || _tokenApproval[tokenId] == msg.sender);
 
         if(_owner[tokenId] == msg.sender){
             _tokenApproval[tokenId] = to;
@@ -121,9 +122,31 @@ contract NFinTech is IERC721 {
 
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public {
         // TODO: please add your implementaiton here
+
+        if (to.code.length > 0) {
+            try IERC721TokenReceiver(to).onERC721Received(msg.sender, from, tokenId, data) returns (bytes4 retval) {
+                require(retval == IERC721TokenReceiver.onERC721Received.selector);
+                transferFrom(from, to, tokenId);
+            } catch (bytes memory) {
+                revert();
+            }
+        }else{
+            revert();
+        }
     }
 
     function safeTransferFrom(address from, address to, uint256 tokenId) public {
         // TODO: please add your implementaiton here
+
+        if (to.code.length > 0) {
+            try IERC721TokenReceiver(to).onERC721Received(msg.sender, from, tokenId, "") returns (bytes4 retval) {
+                require(retval == IERC721TokenReceiver.onERC721Received.selector);
+                transferFrom(from, to, tokenId);
+            } catch (bytes memory) {
+                revert();
+            }
+        }else{
+            revert();
+        }
     }
 }
