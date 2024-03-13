@@ -108,6 +108,15 @@ contract NFinTech is IERC721 {
 
     function transferFrom(address from, address to, uint256 tokenId) public {
         // TODO: please add your implementaiton here
+        if (from == address(0) || to == address(0)) revert ZeroAddress();
+        require(_owner[tokenId] == from);
+        require(_owner[tokenId] == msg.sender || _tokenApproval[tokenId] == msg.sender);
+
+        _balances[from] -= 1;
+        _balances[to] += 1;
+
+        _owner[tokenId] = to;
+        emit Transfer(from, to, tokenId);
     }
 
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public {
