@@ -74,16 +74,18 @@ contract LiaoToken is IERC20 {
 
     function transferFrom(address from, address to, uint256 value) external returns (bool) {
         // TODO: please add your implementaiton here
+        require(_approve[from][msg.sender] >= value);
         require(_balances[from] >= value);
 
         _balances[from] -= value;
         _balances[to] += value;
+
+        emit Transfer(from, to, value);
         return true;
     }
 
     function approve(address spender, uint256 amount) external returns (bool) {
         // TODO: please add your implementaiton here
-        require(_balances[msg.sender] >= amount);
 
         _approve[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
