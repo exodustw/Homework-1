@@ -111,7 +111,7 @@ contract NFinTech is IERC721 {
         // TODO: please add your implementaiton here
         if (from == address(0) || to == address(0)) revert ZeroAddress();
         require(_owner[tokenId] == from);
-        require(_owner[tokenId] == msg.sender || _tokenApproval[tokenId] == msg.sender);
+        require(from == msg.sender || _operatorApproval[from][msg.sender] == true || _tokenApproval[tokenId] == msg.sender);
 
         _balances[from] -= 1;
         _balances[to] += 1;
